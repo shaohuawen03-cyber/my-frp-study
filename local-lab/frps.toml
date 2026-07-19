@@ -1,0 +1,32 @@
+# =============================================================
+# frps 服务端配置（本地学习实验室）
+# 现实中这份配置放在有公网 IP 的 VPS 上
+# 我们现在把它跑在本机 127.0.0.1，纯粹为了摸清协议流程
+# =============================================================
+
+# frps 监听的控制端口。所有 frpc 都通过这个端口和 frps 建立"控制连接"
+bindPort = 7000
+
+# ---- 认证：token 模式，客户端必须带同样的 token 才能注册成功 ----
+auth.method = "token"
+auth.token = "study-frp-2026"
+
+# ---- 服务端 Dashboard：浏览器访问 http://127.0.0.1:7500 可看在线代理 ----
+webServer.addr    = "127.0.0.1"
+webServer.port    = 7500
+webServer.user    = "admin"
+webServer.password = "admin"
+
+# ---- 允许客户端申请的远端端口范围（安全起见，不允许随便开端口）----
+allowPorts = [
+  { start = 6000, end = 6100 },
+]
+
+# ---- 日志 ----
+log.to    = "./local-lab/logs/frps.log"
+log.level = "info"
+log.maxDays = 3
+
+# ---- HTTP 反向代理（可选，用于把本地网页穿透出去，按自定义域名分流）----
+# 本地测试时可以往 hosts 里加 127.0.0.1 web.local
+vhostHTTPPort = 8880

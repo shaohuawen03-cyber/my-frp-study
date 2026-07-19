@@ -1,0 +1,23 @@
+# =============================================================
+# STCP 访问端（visitor）示例
+# 想象你在"另一台机器"上想访问 frpc.toml 里那个 secret-ssh
+# 就用这份 visitor 配置起另一个 frpc 进程
+# 之后 ssh -p 6400 user@127.0.0.1 就能进内网 SSH
+# 但公网上不会有任何暴露端口，非常安全
+# =============================================================
+serverAddr = "127.0.0.1"
+serverPort = 7000
+
+auth.method = "token"
+auth.token  = "study-frp-2026"
+
+log.to    = "./local-lab/logs/frpc-visitor.log"
+log.level = "info"
+
+[[visitors]]
+name        = "secret-ssh-visitor"
+type        = "stcp"
+serverName  = "secret-ssh"       # 对应对端 proxy 的 name
+secretKey   = "my-secret-2026"   # 必须和对端一致
+bindAddr    = "127.0.0.1"
+bindPort    = 6400

@@ -35,3 +35,8 @@ node_modules/
 .claude/
 .sisyphus/
 .superpowers/
+
+# local study lab
+local-lab/logs/
+local-lab/www/
+

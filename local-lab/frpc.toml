@@ -1,0 +1,56 @@
+# =============================================================
+# frpc 客户端配置（本地学习实验室）
+# 现实中这份配置放在你要穿透的内网机器上
+# =============================================================
+
+# 服务端地址 —— 生产环境写你的 VPS 公网 IP / 域名
+serverAddr = "127.0.0.1"
+serverPort = 7000
+
+# 认证 token，必须和 frps 完全一致
+auth.method = "token"
+auth.token  = "study-frp-2026"
+
+# ---- 客户端 Admin UI（本地 http://127.0.0.1:7400） ----
+# 可以热重载配置、看每条代理状态
+webServer.addr     = "127.0.0.1"
+webServer.port     = 7400
+webServer.user     = "admin"
+webServer.password = "admin"
+
+log.to = "./local-lab/logs/frpc.log"
+log.level = "info"
+
+# =============================================================
+# 代理规则：把"本地服务"通过 frps 暴露到"外网"
+# =============================================================
+
+# --- 例 1：TCP 穿透本地 SSH（22 -> 服务端 6022） ---
+# 打通后：ssh -p 6022 user@<frps所在机器IP>
+[[proxies]]
+name       = "ssh"
+type       = "tcp"
+localIP    = "127.0.0.1"
+localPort  = 22
+remotePort = 6022
+# 强烈建议开加密+压缩，尤其在 SSH/RDP 这种明文/带宽敏感场景
+transport.useEncryption  = true
+transport.useCompression = true
+
+# --- 例 2：把本地 Web (localhost:8000) 通过 vhostHTTPPort 暴露 ---
+# 打通后：浏览器访问 http://web.local:8880 （需要在 hosts 加 127.0.0.1 web.local）
+[[proxies]]
+name        = "web"
+type        = "http"
+localIP     = "127.0.0.1"
+localPort   = 8000
+customDomains = ["web.local"]
+
+# --- 例 3：STCP 私密穿透（不开公网端口，只给持有 secretKey 的访问者用） ---
+# 更安全：外面看不到这个端口，需要另一个 frpc 以"visitor"身份带 secretKey 才能连
+[[proxies]]
+name      = "secret-ssh"
+type      = "stcp"
+secretKey = "my-secret-2026"
+localIP   = "127.0.0.1"
+localPort = 22
